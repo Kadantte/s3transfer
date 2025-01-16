@@ -13,10 +13,11 @@ To use the script, run::
     ./timeout "./my-script-to-run" --timeout-after 5
 
 """
+
 import argparse
 import os
-import sys
 import subprocess
+import sys
 import time
 
 import psutil
@@ -24,7 +25,7 @@ import psutil
 
 class TimeoutException(Exception):
     def __init__(self, timeout_len):
-        msg = 'Script failed to complete within %s seconds' % timeout_len
+        msg = f'Script failed to complete within {timeout_len} seconds'
         Exception.__init__(self, msg)
 
 
@@ -67,14 +68,15 @@ def run_script(args):
 
 def main():
     parser = argparse.ArgumentParser(usage=__doc__)
+    parser.add_argument('script', help='The script to run for benchmarking')
     parser.add_argument(
-        'script', help='The script to run for benchmarking')
-    parser.add_argument(
-        '--timeout-after', required=True, type=float,
+        '--timeout-after',
+        required=True,
+        type=float,
         help=(
             'The length of time in seconds allowed for the script to run '
             'before it time\'s out.'
-        )
+        ),
     )
     args = parser.parse_args()
     return timeout(args)
