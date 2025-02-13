@@ -19,27 +19,27 @@ To benchmark with your own local file::
         --s3-bucket mybucket
 
 """
+
 import argparse
 import os
-import tempfile
 import shutil
 import subprocess
+import tempfile
 
 from botocore.session import get_session
-
 
 TEMP_FILE = 'temp'
 TEMP_KEY = 'temp'
 KB = 1024
 SIZE_SUFFIX = {
     'kb': 1024,
-    'mb': 1024 ** 2,
-    'gb': 1024 ** 3,
-    'tb': 1024 ** 4,
+    'mb': 1024**2,
+    'gb': 1024**3,
+    'tb': 1024**4,
     'kib': 1024,
-    'mib': 1024 ** 2,
-    'gib': 1024 ** 3,
-    'tib': 1024 ** 4,
+    'mib': 1024**2,
+    'gib': 1024**3,
+    'tib': 1024**4,
 }
 
 
@@ -56,16 +56,15 @@ def human_readable_to_bytes(value):
         suffix = value[-3:].lower()
     else:
         suffix = value[-2:].lower()
-    has_size_identifier = (
-        len(value) >= 2 and suffix in SIZE_SUFFIX)
+    has_size_identifier = len(value) >= 2 and suffix in SIZE_SUFFIX
     if not has_size_identifier:
         try:
             return int(value)
         except ValueError:
-            raise ValueError("Invalid size value: %s" % value)
+            raise ValueError(f"Invalid size value: {value}")
     else:
         multiplier = SIZE_SUFFIX[suffix]
-        return int(value[:-len(suffix)]) * multiplier
+        return int(value[: -len(suffix)]) * multiplier
 
 
 def create_file(filename, file_size):
@@ -88,9 +87,8 @@ def benchmark_upload(args):
             create_file(source_file, args.file_size)
 
         upload_file_script = (
-            './upload-file --file-name %s --file-type %s --s3-bucket %s '
-            '--s3-key %s' % (
-                source_file, args.file_type, args.s3_bucket, TEMP_KEY)
+            f'./upload-file --file-name {source_file} --file-type {args.file_type} --s3-bucket {args.s3_bucket} '
+            f'--s3-key {TEMP_KEY}'
         )
         benchmark_args = ['./benchmark', upload_file_script]
         if args.output_file:
@@ -110,27 +108,33 @@ def main():
         help=(
             'The local file to upload. Note this is optional. You can also '
             'use --file-size which will create a temporary file for you.'
-        )
+        ),
     )
     source_file_group.add_argument(
-        '--file-size', type=human_readable_to_bytes,
+        '--file-size',
+        type=human_readable_to_bytes,
         help=(
             'The size of the temporary file to create. You can also specify '
             'your own file with --source-file'
-        )
+        ),
     )
     parser.add_argument(
-        '--file-type', choices=['filename', 'seekable', 'nonseekable'],
-        required=True, help='The way to represent the file when uploading')
+        '--file-type',
+        choices=['filename', 'seekable', 'nonseekable'],
+        required=True,
+        help='The way to represent the file when uploading',
+    )
     parser.add_argument(
-        '--s3-bucket', required=True,
-        help='The S3 bucket to upload the file to')
+        '--s3-bucket',
+        required=True,
+        help='The S3 bucket to upload the file to',
+    )
     parser.add_argument(
         '--output-file',
         help=(
             'The file to output the data collected to. The default '
-            'location performace.csv'
-        )
+            'location performance.csv'
+        ),
     )
     args = parser.parse_args()
     benchmark_upload(args)
